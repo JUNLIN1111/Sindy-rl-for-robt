@@ -1,0 +1,94 @@
+# 🦿 SINDy-Go2: 基于稀疏动力学的四足机器人控制与模仿学习
+
+## 📝 项目概述
+本项目利用 **SINDy（Sparse Identification of Nonlinear Dynamics）** 方法，结合 **模仿学习（Imitation Learning）**，为四足机器人（如 Unitree Go2 和 Boston Dynamics Spot）实现高效的行走与跳跃控制。通过从专家数据中提取稀疏动力学模型，我们降低了策略学习的计算复杂度，同时保持模型可解释性，加速仿真（MuJoCo）到实机的部署流程。
+
+---
+
+## 🚀 安装指南
+
+### 环境要求
+- **Python**: 3.10.x
+- **包管理工具**: Conda (Miniconda/Anaconda)
+- **版本控制**: Git
+
+### 逐步安装
+```bash
+# 1. 创建并激活Conda环境
+conda create -n sindy_go2 python=3.10.16
+conda activate sindy_go2
+
+# 2. 克隆代码仓库
+git clone https://github.com/JUNLIN1111/Sindy-go2.git
+cd Sindy-go2/sindy-rl
+
+# 3. 安装依赖项
+pip install -r requirements.txt
+pip install -e .  # 可编辑模式安装
+```
+
+---
+
+## 🛠️ 使用指南
+
+### 训练与验证
+1. **训练 Unitree Go2 机器人**  
+   运行训练脚本：  
+   ```bash
+   python go_encode.py
+   ```
+
+2. **训练 Boston Dynamics Spot 机器人**  
+   ```bash
+   python sindy-rl/sindy_rl/spot_pbt_dyna.py
+   ```  
+   *注：此策略基于代理模型（Surrogate Model），非 MuJoCo 仿真器。*
+
+3. **MuJoCo 环境验证（Go2）**  
+   ```bash
+   python Sindy-go2/sindy-rl/sindy_rl/sparse_policy/go2.py
+   ```
+
+---
+
+## 📊 技术亮点
+- **🔄 稀疏动力学建模**  
+  通过 SINDy 从专家数据中提取可解释的微分方程，避免黑箱模型的复杂性。
+- **🤖 多机器人兼容**  
+  支持 Go2 和 Spot 等四足平台，适应不同硬件接口。
+- **🎯 仿真-实机一致性**  
+  基于 MuJoCo 的验证流程确保策略可直接迁移至真实机器人。
+- **📈 高效模仿学习**  
+  结合专家数据与稀疏模型，减少强化学习的试错成本。
+
+---
+
+## 📂 项目结构
+```plaintext
+Sindy-go2/
+├── sindy-rl/                  
+│   ├── sindy_rl/              
+│   │   ├── sparse_policy/     # 稀疏策略实现（Go2/Spot）
+│   │   │   └── go2.py         # Go2 MuJoCo 验证脚本
+│   │   └── spot_pbt_dyna.py   # Spot 训练脚本
+│   └── requirements.txt       # 依赖列表
+├── go_encode.py               # Go2 主训练脚本
+└── README.md                  
+```
+
+---
+
+## 📜 许可证
+本项目基于 **[MIT License](LICENSE)** 开源，允许自由使用、修改与分发。
+
+---
+
+
+
+## 📧 联系方式
+**项目维护者**:  
+- **邮箱**: Wu1549983212@163.com 
+- **GitHub**: [@JUNLIN1111](https://github.com/JUNLIN1111)  
+- **讨论区**: [GitHub Discussions](https://github.com/JUNLIN1111/Sindy-go2/discussions)
+
+

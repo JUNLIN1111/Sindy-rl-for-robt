@@ -1,0 +1,163 @@
+
+# --------------------------------------------------------
+# go2 Robot Training with SINDy-RL
+# --------------------------------------------------------
+
+exp_dir: anymal-walk
+n_train_iter: 500 #这里挑了
+dyn_fit_freq: 10
+fcnet_hiddens: [256, 256]
+
+real_env:
+  class: Anymalwrapper
+  config: 
+    render_mode: "human"
+    # useFixedBase: False
+
+
+drl:
+  class: PPO
+  config:
+    training: 
+      lr_schedule: [[0, 1.0e-4], [20000000, 1.0e-8]]
+      gamma: 0.99
+      lambda_: 0.95 #0.95
+      vf_loss_coeff: 0.5
+      clip_param: 0.2
+      grad_clip: 0.5
+    environment:
+      env: Anymalwrapper
+      env_config:
+        max_episode_steps: 5000
+        real_env_class: Anymalwrapper
+        real_env_config: 
+        #  useFixedBase: False
+        init_real_on_start: True
+        use_real_env: False
+        ensemble_modes: 
+          dyn: median
+        init_weights: True
+        act_dim: 12
+        obs_dim: 21
+        act_bounds: 
+          - [-40,40]
+          - [-40,40]
+          - [-40,40]
+          - [-40,40]
+          - [-40,40]
+          - [-40,40]
+          - [-40,40]
+          - [-40,40]
+          - [-40,40]
+          - [-40,40]
+          - [-40,40]
+          - [-40,40]
+          
+        obs_bounds:
+          - [-1000, 1000]
+          - [-1000, 1000]
+          - [0, 10]
+            
+          - [-100, 100]
+          - [-100, 100]
+          - [-100, 100]
+          
+          - [-100, 100]
+          - [-100, 100]
+          - [-100, 100]
+
+          - [-100, 100]
+          - [-100, 100]
+          - [-100, 100]
+
+          - [-100, 100]
+          - [-100, 100]
+          - [-100, 100]
+
+          - [-100, 100]
+          - [-100, 100]
+          - [-100, 100]
+
+          - [-100, 100]
+          - [-100, 100]
+          - [-100, 100]
+          
+
+
+          
+    framework: torch
+
+    evaluation: 
+      evaluation_config:
+        env_config: 
+          max_episode_steps: 1000
+          init_real_on_start: True
+          use_real_env: True
+          use_bounds: False
+          real_env_class: Anymalwrapper
+          real_env_config: 
+            
+            #max_episode_steps: 1000
+            #reward_threshold: 360
+        explore: False
+      evaluation_interval: 5
+      evaluation_duration: 5
+      evaluation_duration_unit: "episodes"
+      always_attach_evaluation_results: True
+
+
+off_policy_buffer:
+  config:
+    max_samples:  50000
+  init: 
+    type: collect
+    kwargs: 
+      n_steps: 20000 
+
+on_policy_buffer:
+  config:
+    max_samples: 20000 #20000
+  collect:
+    n_steps: 1000 #1000
+
+
+dynamics_model:
+  class: EnsembleSINDyDynamicsModel
+  config:
+    dt: 1
+    discrete: True
+    optimizer:
+      base_optimizer:
+        name: STLSQ
+        kwargs:
+          alpha: 5.0e-5
+          threshold: 7.0e-3  #5.0e-4 #7.0e-3
+      ensemble:
+        bagging: True  
+        library_ensemble: True  
+        n_models: 5 #20  
+        
+    feature_library:
+      name: affine
+      kwargs:
+        poly_deg: 2 # means the deg in equation
+        n_state:  21 # real 62
+        n_control: 12  # i dont sure
+        poly_int: True
+        tensor: True
+        
+rew_model:
+  class: FunctionalRewardModel
+  config: 
+    name: Anymal_straight_walk_reward
+
+
+ray_config:
+  run_config:
+    name: "anymal-walk_sindy_freq40"
+    stop:
+      num_env_steps_sampled: 5.0e+7
+    
+  tune_config:
+    num_samples: 4
+  checkpoint_freq: 10 
